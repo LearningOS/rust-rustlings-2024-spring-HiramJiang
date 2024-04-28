@@ -2,7 +2,6 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -38,6 +37,16 @@ where
 
     pub fn add(&mut self, value: T) {
         //TODO
+        self.items.push(value);
+        self.count += 1;
+        let mut idx = self.count;
+        // 不可变借用，用于获取父节点的索引
+        while idx > 1 && (self.comparator)(&self.items[idx], &self.items[self.parent_idx(idx)]) {
+            // 不可变借用，用于交换元素
+            let parent_idx = self.parent_idx(idx);
+            self.items.swap(idx, parent_idx);
+            idx = parent_idx;
+        }
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -58,7 +67,14 @@ where
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
         //TODO
-		0
+		let left = self.left_child_idx(idx);
+        let right = self.right_child_idx(idx);
+        
+        if right > self.count || (self.comparator)(&self.items[left], &self.items[right]) {
+            left
+        } else {
+            right
+        }
     }
 }
 
@@ -75,18 +91,41 @@ where
     pub fn new_max() -> Self {
         Self::new(|a, b| a > b)
     }
+
+    pub fn bubble_down(&mut self, idx: usize) {
+        let mut current = idx;
+        while self.children_present(current) {
+            let smallest_child_idx = self.smallest_child_idx(current);
+            if (self.comparator)(&self.items[smallest_child_idx], &self.items[current]) {
+                self.items.swap(current, smallest_child_idx);
+                current = smallest_child_idx;
+            } else {
+                break;
+            }
+        }
+    }
 }
 
 impl<T> Iterator for Heap<T>
 where
-    T: Default,
+    T: Default + Ord,
 {
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
         //TODO
-		None
+        if self.is_empty() {
+            return None;
+        }
+
+        let item = self.items.swap_remove(1);
+        self.count -= 1;
+        if !self.is_empty() {
+            self.bubble_down(1);
+        }
+        Some(item)
     }
+
 }
 
 pub struct MinHeap;

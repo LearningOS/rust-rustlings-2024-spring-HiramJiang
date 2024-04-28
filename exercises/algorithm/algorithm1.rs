@@ -2,11 +2,10 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
-use std::vec::*;
+//use std::vec::*;
 
 #[derive(Debug)]
 struct Node<T> {
@@ -29,13 +28,13 @@ struct LinkedList<T> {
     end: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Default for LinkedList<T> {
-    fn default() -> Self {
-        Self::new()
-    }
-}
+//impl<T> Default for LinkedList<T> {
+//    fn default() -> Self {
+//        Self::new()
+//    }
+//}
 
-impl<T> LinkedList<T> {
+impl<T: Clone + std::cmp::PartialOrd> LinkedList<T> {
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -69,14 +68,41 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
+	pub fn merge(mut list_a:LinkedList<T>,mut list_b:LinkedList<T>) -> Self
 	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+        let mut merged_list = LinkedList::new();
+        let mut current_a = list_a.start;
+        let mut current_b = list_b.start;
+    
+        // 比较两个链表中的元素，并将较小的节点添加到新链表中
+        while current_a.is_some() && current_b.is_some() {
+            let val_a = unsafe { current_a.unwrap().as_ref().val.clone() };
+            let val_b = unsafe { current_b.unwrap().as_ref().val.clone() };
+    
+            if val_a <= val_b {
+                merged_list.add(val_a);
+                current_a = unsafe { current_a.unwrap().as_ref().next };
+            } else {
+                merged_list.add(val_b);
+                current_b = unsafe { current_b.unwrap().as_ref().next };
+            }
         }
+    
+        // 将 list_a 剩余的节点添加到 merged_list 中
+        while let Some(ptr) = current_a {
+            let val = unsafe { ptr.as_ref().val.clone() };
+            merged_list.add(val);
+            current_a = unsafe { ptr.as_ref().next };
+        }
+    
+        // 将 list_b 剩余的节点添加到 merged_list 中
+        while let Some(ptr) = current_b {
+            let val = unsafe { ptr.as_ref().val.clone() };
+            merged_list.add(val);
+            current_b = unsafe { ptr.as_ref().next };
+        }
+    
+        merged_list
 	}
 }
 

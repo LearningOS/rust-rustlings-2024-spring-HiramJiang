@@ -3,11 +3,19 @@
 // Execute `rustlings hint variables5` or use the `hint` watch subcommand for a
 // hint.
 
-// I AM NOT DONE
 
 fn main() {
     let number = "T-H-R-E-E"; // don't change this line
     println!("Spell a Number : {}", number);
+    let mut number = match number {
+        "O-N-E" => 1,
+        "T-W-O" => 2,
+        "T-H-R-E-E" => 3,
+        _ => {
+            println!("Unknown");
+            return;
+        }
+    };
     number = 3; // don't rename this variable
     println!("Number plus two is : {}", number + 2);
 }
